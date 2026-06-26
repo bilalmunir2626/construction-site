@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VANTEX Construction — Built to Outlast</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;600;700;800;900&family=Barlow:wght@300;400;500&family=Barlow+Semi+Condensed:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --black:#080808; --dark:#111111; --card:#181818; --steel:#272727;
+      --line:#2e2e2e; --gold:#C9A84C; --gold-dim:#8a6e2f;
+      --off-white:#F0EDE8; --muted:#888; --radius:4px;
+    }
+    html { scroll-behavior: smooth; }
+    body { background:var(--black); color:var(--off-white); font-family:'Barlow',sans-serif; font-weight:400; overflow-x:hidden; }
+
+    /* CURSOR */
+    .cursor { position:fixed; width:12px; height:12px; background:var(--gold); border-radius:50%; pointer-events:none; z-index:9999; transform:translate(-50%,-50%); transition:width 0.2s,height 0.2s; mix-blend-mode:exclusion; }
+    .cursor-ring { position:fixed; width:36px; height:36px; border:1px solid rgba(201,168,76,0.5); border-radius:50%; pointer-events:none; z-index:9998; transform:translate(-50%,-50%); transition:width 0.25s,height 0.25s; }
+
+    /* NAVBAR */
+    nav { position:fixed; top:0; left:0; right:0; z-index:500; display:flex; align-items:center; justify-content:space-between; padding:0 4rem; height:72px; background:transparent; transition:background 0.4s,border-bottom 0.4s; }
+    nav.scrolled { background:rgba(8,8,8,0.93); border-bottom:1px solid var(--line); backdrop-filter:blur(14px); }
+    .nav-logo { font-family:'Barlow Condensed',sans-serif; font-weight:900; font-size:1.5rem; letter-spacing:0.12em; color:var(--off-white); text-transform:uppercase; text-decoration:none; }
+    .nav-logo span { color:var(--gold); }
+    .nav-links { display:flex; gap:2.5rem; list-style:none; }
+    .nav-links a { font-family:'Barlow Semi Condensed',sans-serif; font-size:0.8rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--muted); text-decoration:none; transition:color 0.2s; position:relative; }
+    .nav-links a::after { content:''; position:absolute; bottom:-4px; left:0; width:0; height:1px; background:var(--gold); transition:width 0.3s; }
+    .nav-links a:hover { color:var(--off-white); }
+    .nav-links a:hover::after { width:100%; }
+    .nav-cta { font-family:'Barlow Semi Condensed',sans-serif; font-size:0.78rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--black); background:var(--gold); padding:0.6rem 1.4rem; text-decoration:none; transition:background 0.25s,transform 0.2s; }
+    .nav-cta:hover { background:#d9b85c; transform:translateY(-1px); }
+
+    /* HAMBURGER */
+    .nav-hamburger { display:none; flex-direction:column; gap:5px; cursor:pointer; background:none; border:none; padding:4px; z-index:600; }
+    .nav-hamburger span { display:block; width:24px; height:2px; background:var(--off-white); border-radius:2px; transition:transform 0.3s, opacity 0.3s; }
+    .nav-hamburger.open span:nth-child(1) { transform:translateY(7px) rotate(45deg); }
+    .nav-hamburger.open span:nth-child(2) { opacity:0; }
+    .nav-hamburger.open span:nth-child(3) { transform:translateY(-7px) rotate(-45deg); }
+
+    /* MOBILE NAV OVERLAY */
+    .mobile-nav { display:none; position:fixed; inset:0; z-index:550; background:rgba(8,8,8,0.98); flex-direction:column; align-items:center; justify-content:center; gap:2.5rem; }
+    .mobile-nav.open { display:flex; }
+    .mobile-nav a { font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:2rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--off-white); text-decoration:none; transition:color 0.2s; }
+    .mobile-nav a:hover { color:var(--gold); }
+    .mobile-nav .mobile-cta { background:var(--gold); color:var(--black); padding:0.8rem 2.5rem; font-size:1.2rem; }
+
+    /* HERO */
+    #hero { position:relative; min-height:100vh; display:flex; flex-direction:column; justify-content:center; overflow:hidden; background:var(--black); }
+    .hero-grid { position:absolute; inset:0; background-image:linear-gradient(rgba(201,168,76,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(201,168,76,0.04) 1px,transparent 1px); background-size:60px 60px; animation:gridDrift 30s linear infinite; pointer-events:none; }
+    @keyframes gridDrift { from{transform:translateY(0)} to{transform:translateY(60px)} }
+    .hero-slash { position:absolute; top:-10%; right:8%; width:3px; height:140%; background:linear-gradient(to bottom,transparent,var(--gold),transparent); transform:rotate(8deg); opacity:0.2; animation:slashPulse 4s ease-in-out infinite; }
+    @keyframes slashPulse { 0%,100%{opacity:0.12} 50%{opacity:0.3} }
+    .particles-wrap { position:absolute; inset:0; pointer-events:none; overflow:hidden; }
+    .particle { position:absolute; width:2px; background:var(--gold); opacity:0; animation:particleRise var(--dur) ease-in-out var(--delay) infinite; }
+    @keyframes particleRise { 0%{opacity:0;transform:translateY(100%) scaleY(0)} 20%{opacity:0.6} 80%{opacity:0.3} 100%{opacity:0;transform:translateY(-100%) scaleY(1)} }
+    .hero-inner { position:relative; z-index:2; padding:0 4rem; max-width:1200px; margin:0 auto; width:100%; padding-top:120px; }
+    .hero-eyebrow { display:flex; align-items:center; gap:1rem; margin-bottom:1.8rem; opacity:0; transform:translateY(20px); animation:fadeUp 0.8s ease forwards 0.4s; }
+    .hero-eyebrow-line { width:40px; height:1px; background:var(--gold); }
+    .hero-eyebrow-text { font-family:'Barlow Semi Condensed',sans-serif; font-size:0.72rem; letter-spacing:0.25em; text-transform:uppercase; color:var(--gold); }
+    .hero-title { font-family:'Barlow Condensed',sans-serif; font-weight:900; font-size:clamp(4.5rem,10vw,9.5rem); line-height:0.92; text-transform:uppercase; letter-spacing:-0.01em; color:var(--off-white); overflow:hidden; margin-top:10px; }
+    .hero-title .line { display:block; overflow:hidden; }
+    .hero-title .line span { display:block; transform:translateY(110%); animation:lineReveal 0.9s cubic-bezier(0.16,1,0.3,1) forwards; }
+    .hero-title .line:nth-child(1) span{animation-delay:0.5s}
+    .hero-title .line:nth-child(2) span{animation-delay:0.65s}
+    .hero-title .line:nth-child(3) span{animation-delay:0.8s}
+    @keyframes lineReveal { to{transform:translateY(0)} }
+    .hero-title .accent { color:var(--gold); }
+    .hero-title .outline { -webkit-text-stroke:1px var(--off-white); color:transparent; display:inline; }
+    .hero-sub-row { display:flex; align-items:flex-end; justify-content:space-between; margin-top:3rem; gap:2rem; }
+    .hero-desc { max-width:380px; font-size:1rem; line-height:1.7; color:var(--muted); opacity:0; transform:translateY(20px); animation:fadeUp 0.8s ease forwards 1.1s; }
+    .hero-actions { display:flex; gap:1rem; align-items:center; opacity:0; transform:translateY(20px); animation:fadeUp 0.8s ease forwards 1.25s; }
+    .btn-primary { font-family:'Barlow Semi Condensed',sans-serif; font-size:0.82rem; letter-spacing:0.14em; text-transform:uppercase; background:var(--gold); color:var(--black); padding:1rem 2.2rem; text-decoration:none; font-weight:600; position:relative; overflow:hidden; display:inline-block; }
+    .btn-primary::before { content:''; position:absolute; inset:0; background:var(--off-white); transform:translateX(-101%); transition:transform 0.35s cubic-bezier(0.16,1,0.3,1); }
+    .btn-primary:hover::before { transform:translateX(0); }
+    .btn-primary span { position:relative; z-index:1; }
+    .btn-ghost { font-family:'Barlow Semi Condensed',sans-serif; font-size:0.82rem; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); padding:1rem 2rem; text-decoration:none; border:1px solid var(--line); transition:color 0.25s,border-color 0.25s; display:inline-block; }
+    .btn-ghost:hover { color:var(--off-white); border-color:var(--gold); }
+    .hero-stats { display:flex; gap:0; margin-top:4rem; border-top:1px solid var(--line); opacity:0; animation:fadeUp 0.8s ease forwards 1.4s; }
+    .stat { flex:1; padding:1.8rem 2rem; border-right:1px solid var(--line); position:relative; overflow:hidden; cursor:default; }
+    .stat:last-child { border-right:none; }
+    .stat::after { content:''; position:absolute; bottom:0; left:0; width:0; height:2px; background:var(--gold); transition:width 0.4s; }
+    .stat:hover::after { width:100%; }
+    .stat-number { font-family:'Barlow Condensed',sans-serif; font-size:2.8rem; font-weight:900; color:var(--off-white); line-height:1; display:block; }
+    .stat-number .unit { font-size:1.6rem; color:var(--gold); }
+    .stat-label { font-size:0.72rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--muted); margin-top:0.4rem; display:block; }
+    @keyframes fadeUp { to{opacity:1;transform:translateY(0)} }
+    .scroll-cue { position:absolute; bottom:2.5rem; left:50%; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; gap:0.5rem; opacity:0; animation:fadeUp 0.8s ease forwards 1.8s; }
+    .scroll-cue-text { font-family:'Barlow Semi Condensed',sans-serif; font-size:0.65rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--muted); }
+    .scroll-cue-line { width:1px; height:40px; background:linear-gradient(to bottom,var(--gold),transparent); animation:scrollLine 1.8s ease-in-out infinite; }
+    @keyframes scrollLine { 0%{transform:scaleY(0);transform-origin:top} 50%{transform:scaleY(1);transform-origin:top} 51%{transform:scaleY(1);transform-origin:bottom} 100%{transform:scaleY(0);transform-origin:bottom} }
+
+    /* MARQUEE */
+    .marquee-wrap { overflow:hidden; background:var(--gold); padding:0.9rem 0; }
+    .marquee-track { display:flex; width:max-content; animation:marquee 18s linear infinite; }
+    .marquee-track:hover { animation-play-state:paused; }
+    .marquee-item { display:flex; align-items:center; gap:1.5rem; padding:0 2rem; white-space:nowrap; font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:0.85rem; letter-spacing:0.18em; text-transform:uppercase; color:var(--black); }
+    .marquee-dot { width:5px; height:5px; background:var(--black); border-radius:50%; opacity:0.4; }
+    @keyframes marquee { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+    /* BEFORE/AFTER */
+    #before-after { background:var(--dark); padding:7rem 4rem; position:relative; overflow:hidden; }
+    #before-after::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,var(--gold),transparent); }
+    .section-header { text-align:center; margin-bottom:4.5rem; }
+    .section-eyebrow { display:inline-flex; align-items:center; gap:0.8rem; margin-bottom:1.2rem; }
+    .section-eyebrow-line { width:30px; height:1px; background:var(--gold); }
+    .section-eyebrow-text { font-family:'Barlow Semi Condensed',sans-serif; font-size:0.7rem; letter-spacing:0.25em; text-transform:uppercase; color:var(--gold); }
+    .section-title { font-family:'Barlow Condensed',sans-serif; font-weight:900; font-size:clamp(2.5rem,5vw,4.5rem); text-transform:uppercase; color:var(--off-white); line-height:1; letter-spacing:-0.01em; }
+    .section-title .accent { color:var(--gold); }
+    .section-sub { margin-top:1rem; font-size:0.95rem; color:var(--muted); max-width:440px; margin-left:auto; margin-right:auto; line-height:1.7; }
+    .ba-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:2px; max-width:1200px; margin:0 auto; }
+    .ba-card { position:relative; overflow:hidden; cursor:col-resize; background:var(--card); }
+    .ba-card::before { content:''; display:block; padding-top:68%; }
+    .ba-inner { position:absolute; inset:0; }
+    .ba-before,.ba-after { position:absolute; inset:0; }
+    .ba-before img,
+.ba-after img {
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+}
+    .ba-after { clip-path:inset(0 50% 0 0); will-change:clip-path; }
+    .card-1 .ba-before { background:radial-gradient(ellipse 60% 80% at 30% 90%,#1a1008 0%,transparent 60%),radial-gradient(ellipse 40% 60% at 70% 80%,#201008 0%,transparent 50%),linear-gradient(175deg,#2c2008 0%,#1a1208 30%,#0d0a06 60%,#080604 100%); }
+    .card-1 .ba-before::before { content:''; position:absolute; inset:0; background:repeating-linear-gradient(0deg,transparent,transparent 18px,rgba(255,200,50,0.035) 18px,rgba(255,200,50,0.035) 19px),repeating-linear-gradient(90deg,transparent,transparent 22px,rgba(255,200,50,0.025) 22px,rgba(255,200,50,0.025) 23px); }
+    .card-1 .ba-before::after { content:'DEMOLITION SITE'; position:absolute; bottom:1rem; left:1rem; font-family:'Barlow Condensed',sans-serif; font-size:0.65rem; letter-spacing:0.2em; color:rgba(255,200,80,0.5); text-transform:uppercase; }
+    .card-1 .ba-after { background:linear-gradient(180deg,#0d1520 0%,#0a1018 40%,#060d14 100%); }
+    .card-1 .ba-after::before { content:''; position:absolute; inset:0; background:linear-gradient(to top,#1a3050 0%,transparent 0%) no-repeat 50% 100%/55% 75%,linear-gradient(to top,#1e3858 0%,transparent 0%) no-repeat 30% 100%/30% 55%,linear-gradient(to top,#162840 0%,transparent 0%) no-repeat 72% 100%/25% 45%,repeating-linear-gradient(0deg,transparent,transparent 6px,rgba(100,160,255,0.12) 6px,rgba(100,160,255,0.12) 7px); }
+    .card-1 .ba-after::after { content:'LUXURY TOWER'; position:absolute; bottom:1rem; right:1rem; font-family:'Barlow Condensed',sans-serif; font-size:0.65rem; letter-spacing:0.2em; color:rgba(100,160,255,0.5); text-transform:uppercase; }
+    .card-2 .ba-before { background:linear-gradient(160deg,#1c1008 0%,#14100a 40%,#0a0906 100%); }
+    .card-2 .ba-before::before { content:''; position:absolute; inset:0; background:linear-gradient(to top,#2a1e10 0%,transparent 0%) no-repeat 20% 100%/60% 65%,linear-gradient(to top,#201808 0%,transparent 0%) no-repeat 65% 100%/40% 50%,repeating-linear-gradient(0deg,transparent,transparent 14px,rgba(180,130,60,0.06) 14px,rgba(180,130,60,0.06) 15px); }
+    .card-2 .ba-before::after { content:'DERELICT STRUCTURE'; position:absolute; bottom:1rem; left:1rem; font-family:'Barlow Condensed',sans-serif; font-size:0.65rem; letter-spacing:0.2em; color:rgba(180,130,60,0.5); text-transform:uppercase; }
+    .card-2 .ba-after { background:linear-gradient(160deg,#0d1a0d 0%,#081408 40%,#040f04 100%); }
+    .card-2 .ba-after::before { content:''; position:absolute; inset:0; background:linear-gradient(to top,#1a3020 0%,transparent 0%) no-repeat 15% 100%/70% 70%,linear-gradient(to top,#1e382a 0%,transparent 0%) no-repeat 60% 100%/45% 55%,repeating-linear-gradient(0deg,transparent,transparent 8px,rgba(60,200,100,0.06) 8px,rgba(60,200,100,0.06) 9px); }
+    .card-2 .ba-after::after { content:'ECO COMPLEX'; position:absolute; bottom:1rem; right:1rem; font-family:'Barlow Condensed',sans-serif; font-size:0.65rem; letter-spacing:0.2em; color:rgba(60,200,100,0.5); text-transform:uppercase; }
+    .card-3 .ba-before { background:linear-gradient(180deg,#0f0c0a 0%,#1a1408 60%,#201a0e 100%); }
+    .card-3 .ba-before::before { content:''; position:absolute; inset:0; background:linear-gradient(to top,#2e2410 0%,#1a1408 0%) no-repeat 0% 100%/100% 20%,radial-gradient(ellipse 100% 30% at 50% 100%,#2e2410 0%,transparent 100%); }
+    .card-3 .ba-before::after { content:'VACANT LAND'; position:absolute; bottom:1rem; left:1rem; font-family:'Barlow Condensed',sans-serif; font-size:0.65rem; letter-spacing:0.2em; color:rgba(200,180,100,0.5); text-transform:uppercase; }
+    .card-3 .ba-after { background:linear-gradient(180deg,#080810 0%,#0a0a18 40%,#060610 100%); }
+    .card-3 .ba-after::before { content:''; position:absolute; inset:0; background:linear-gradient(to top,#101030 0%,transparent 0%) no-repeat 0% 100%/100% 65%,repeating-linear-gradient(0deg,transparent,transparent 12px,rgba(140,100,255,0.05) 12px,rgba(140,100,255,0.05) 13px),linear-gradient(to top,#0c0c28 0%,transparent 0%) no-repeat 50% 100%/20% 80%; }
+    .card-3 .ba-after::after { content:'SMART DISTRICT'; position:absolute; bottom:1rem; right:1rem; font-family:'Barlow Condensed',sans-serif; font-size:0.65rem; letter-spacing:0.2em; color:rgba(140,100,255,0.5); text-transform:uppercase; }
+    .ba-divider { position:absolute; top:0; bottom:0; left:50%; width:2px; background:var(--gold); transform:translateX(-50%); z-index:10; pointer-events:none; }
+    .ba-handle { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:44px; height:44px; background:var(--gold); border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 0 0 4px rgba(201,168,76,0.2); z-index:11; animation:handlePulse 2.5s ease-in-out infinite; }
+    @keyframes handlePulse { 0%,100%{box-shadow:0 0 0 4px rgba(201,168,76,0.2)} 50%{box-shadow:0 0 0 10px rgba(201,168,76,0.05)} }
+    .ba-arrows { color:var(--black); font-size:0.9rem; font-weight:900; user-select:none; }
+    .ba-label { position:absolute; top:1rem; z-index:5; font-family:'Barlow Semi Condensed',sans-serif; font-size:0.65rem; letter-spacing:0.18em; text-transform:uppercase; padding:0.35rem 0.7rem; }
+    .ba-label.before { left:1rem; background:rgba(221, 173, 40, 0.623); border:1px solid rgba(201,168,76,0.3); color:black; }
+    .ba-label.after { right:1rem; background:rgba(240,237,232,0.1); border:1px solid rgba(240,237,232,0.2); color:black; }
+    .ba-caption { background:var(--card); padding:1.2rem 1.4rem; border-top:2px solid var(--line); transition:border-color 0.3s; }
+    .ba-card:hover .ba-caption { border-color:var(--gold); }
+    .ba-caption-tag { font-family:'Barlow Semi Condensed',sans-serif; font-size:0.65rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--gold); margin-bottom:0.3rem; display:block; }
+    .ba-caption-title { font-family:'Barlow Condensed',sans-serif; font-size:1.15rem; font-weight:700; color:var(--off-white); text-transform:uppercase; letter-spacing:0.04em; }
+    .ba-instruction { text-align:center; margin-top:2.5rem; display:flex; align-items:center; justify-content:center; gap:0.8rem; }
+    .ba-instruction-icon { width:28px; height:28px; border:1px solid var(--gold); border-radius:50%; display:flex; align-items:center; justify-content:center; animation:bounceH 2s ease-in-out infinite; font-size:0.75rem; color:var(--gold); }
+    @keyframes bounceH { 0%,100%{transform:translateX(0)} 33%{transform:translateX(4px)} 66%{transform:translateX(-4px)} }
+    .ba-instruction span { font-family:'Barlow Semi Condensed',sans-serif; font-size:0.72rem; letter-spacing:0.18em; text-transform:uppercase; color:var(--muted); }
+
+    /* SERVICES */
+    #services { background:var(--black); padding:7rem 4rem; position:relative; overflow:hidden; }
+    #services::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,var(--gold),transparent); }
+    .services-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1px; max-width:1200px; margin:0 auto; border:1px solid var(--line); }
+    .service-card { padding:2.5rem; background:var(--card); position:relative; overflow:hidden; cursor:default; transition:background 0.35s; }
+    .service-card::after { content:''; position:absolute; bottom:0; left:0; width:0; height:3px; background:var(--gold); transition:width 0.4s; }
+    .service-card:hover { background:#1e1e1e; }
+    .service-card:hover::after { width:100%; }
+    .service-icon { width:52px; height:52px; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; font-size:1.4rem; margin-bottom:1.5rem; transition:border-color 0.3s,transform 0.3s; }
+    .service-card:hover .service-icon { border-color:var(--gold); transform:rotate(5deg); }
+    .service-name { font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:1.25rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--off-white); margin-bottom:0.7rem; }
+    .service-desc { font-size:0.88rem; color:var(--muted); line-height:1.7; }
+    .service-link { display:inline-flex; align-items:center; gap:0.5rem; margin-top:1.2rem; font-family:'Barlow Semi Condensed',sans-serif; font-size:0.72rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--gold); text-decoration:none; transition:gap 0.2s; }
+    .service-link:hover { gap:0.9rem; }
+    .service-num { position:absolute; top:1.5rem; right:1.5rem; font-family:'Barlow Condensed',sans-serif; font-size:3rem; font-weight:900; color:rgba(201,168,76,0.06); line-height:1; pointer-events:none; }
+
+    /* TESTIMONIALS */
+    #testimonials { background:var(--dark); padding:7rem 4rem; position:relative; overflow:hidden; }
+    #testimonials::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,var(--gold),transparent); }
+    .testi-wrap { max-width:1200px; margin:0 auto; position:relative; }
+    .testi-track-outer { overflow:hidden; }
+    .testi-track { display:flex; gap:1.5rem; transition:transform 0.6s cubic-bezier(0.16,1,0.3,1); }
+    .testi-card { flex:0 0 calc(33.33% - 1rem); background:var(--card); padding:2.2rem; border:1px solid var(--line); position:relative; transition:border-color 0.3s,transform 0.3s; }
+    .testi-card:hover { border-color:var(--gold-dim); transform:translateY(-4px); }
+    .testi-quote { font-family:'Barlow Condensed',sans-serif; font-size:4rem; font-weight:900; color:var(--gold); line-height:0.7; margin-bottom:1rem; opacity:0.4; }
+    .testi-text { font-size:0.95rem; color:var(--off-white); line-height:1.8; margin-bottom:1.8rem; font-style:italic; }
+    .testi-divider { width:30px; height:1px; background:var(--gold); margin-bottom:1.2rem; }
+    .testi-name { font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:1.05rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--off-white); }
+    .testi-role { font-size:0.75rem; color:var(--muted); letter-spacing:0.1em; text-transform:uppercase; margin-top:0.2rem; }
+    .testi-stars { color:var(--gold); font-size:0.8rem; margin-bottom:1rem; letter-spacing:0.1em; }
+    .testi-controls { display:flex; align-items:center; justify-content:space-between; margin-top:2.5rem; }
+    .testi-dots { display:flex; gap:0.5rem; }
+    .testi-dot { width:24px; height:3px; background:var(--line); cursor:pointer; transition:background 0.3s,width 0.3s; }
+    .testi-dot.active { background:var(--gold); width:40px; }
+    .testi-arrows { display:flex; gap:0.8rem; }
+    .testi-btn { width:44px; height:44px; border:1px solid var(--line); background:transparent; color:var(--off-white); cursor:pointer; font-size:1rem; display:flex; align-items:center; justify-content:center; transition:border-color 0.25s,background 0.25s,color 0.25s; }
+    .testi-btn:hover { border-color:var(--gold); background:var(--gold); color:var(--black); }
+
+    /* CONTACT */
+    #contact { background:var(--black); padding:7rem 4rem; position:relative; }
+    #contact::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,var(--gold),transparent); }
+    .contact-inner { max-width:1200px; margin:0 auto; display:grid; grid-template-columns:1fr 1fr; gap:5rem; align-items:start; }
+    .contact-left h2 { font-family:'Barlow Condensed',sans-serif; font-weight:900; font-size:clamp(2.5rem,5vw,4rem); text-transform:uppercase; color:var(--off-white); line-height:1; margin-bottom:1.2rem; }
+    .contact-left h2 span { color:var(--gold); }
+    .contact-left p { font-size:0.95rem; color:var(--muted); line-height:1.8; margin-bottom:2.5rem; max-width:380px; }
+    .contact-info-item { display:flex; align-items:flex-start; gap:1rem; padding:1.2rem 0; border-bottom:1px solid var(--line); }
+    .contact-info-item:first-of-type { border-top:1px solid var(--line); }
+    .contact-info-icon { width:38px; height:38px; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; font-size:1rem; flex-shrink:0; transition:border-color 0.3s; }
+    .contact-info-item:hover .contact-info-icon { border-color:var(--gold); }
+    .contact-info-label { font-size:0.68rem; letter-spacing:0.18em; text-transform:uppercase; color:var(--muted); margin-bottom:0.2rem; }
+    .contact-info-value { font-size:0.95rem; color:var(--off-white); }
+    .contact-form { display:flex; flex-direction:column; gap:1px; }
+    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:1px; }
+    .form-field { display:flex; flex-direction:column; }
+    .form-field label { font-family:'Barlow Semi Condensed',sans-serif; font-size:0.68rem; letter-spacing:0.18em; text-transform:uppercase; color:var(--muted); padding:0.8rem 1rem 0; background:var(--card); }
+    .form-field input,.form-field select,.form-field textarea { background:var(--card); border:none; outline:none; padding:0.6rem 1rem 0.9rem; font-family:'Barlow',sans-serif; font-size:0.92rem; color:var(--off-white); resize:none; transition:background 0.25s; border-bottom:2px solid transparent; }
+    .form-field input:focus,.form-field select:focus,.form-field textarea:focus { background:#1e1e1e; border-bottom:2px solid var(--gold); outline:none; }
+    .form-field select option { background:var(--card); }
+    .form-submit-row { display:flex; justify-content:flex-end; margin-top:1px; }
+    .form-submit { font-family:'Barlow Semi Condensed',sans-serif; font-size:0.82rem; letter-spacing:0.15em; text-transform:uppercase; background:var(--gold); color:var(--black); border:none; padding:1.1rem 2.5rem; cursor:pointer; font-weight:600; position:relative; overflow:hidden; transition:color 0.3s; }
+    .form-submit::before { content:''; position:absolute; inset:0; background:var(--off-white); transform:translateX(-101%); transition:transform 0.35s cubic-bezier(0.16,1,0.3,1); }
+    .form-submit:hover::before { transform:translateX(0); }
+    .form-submit span { position:relative; z-index:1; }
+
+    /* FOOTER */
+    footer { background:#050505; padding:4rem 4rem 2rem; border-top:1px solid var(--line); }
+    .footer-top { max-width:1200px; margin:0 auto; display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:4rem; padding-bottom:3rem; border-bottom:1px solid var(--line); }
+    .footer-brand p { font-size:0.88rem; color:var(--muted); line-height:1.8; margin:1rem 0 1.5rem; max-width:280px; }
+    .footer-social { display:flex; gap:0.8rem; }
+    .social-btn { width:36px; height:36px; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; font-size:0.85rem; color:var(--muted); text-decoration:none; transition:border-color 0.25s,color 0.25s,background 0.25s; }
+    .social-btn:hover { border-color:var(--gold); color:var(--gold); }
+    .footer-col h4 { font-family:'Barlow Semi Condensed',sans-serif; font-size:0.72rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--gold); margin-bottom:1.2rem; }
+    .footer-col ul { list-style:none; display:flex; flex-direction:column; gap:0.6rem; }
+    .footer-col ul a { font-size:0.88rem; color:var(--muted); text-decoration:none; transition:color 0.2s; display:inline-flex; align-items:center; gap:0.4rem; }
+    .footer-col ul a::before { content:'—'; font-size:0.6rem; opacity:0; transition:opacity 0.2s; }
+    .footer-col ul a:hover { color:var(--off-white); }
+    .footer-col ul a:hover::before { opacity:1; }
+    .footer-bottom { max-width:1200px; margin:0 auto; padding-top:1.8rem; display:flex; align-items:center; justify-content:space-between; }
+    .footer-copy { font-size:0.78rem; color:var(--muted); }
+    .footer-copy span { color:var(--gold); }
+    .footer-legal { display:flex; gap:2rem; }
+    .footer-legal a { font-size:0.78rem; color:var(--muted); text-decoration:none; transition:color 0.2s; }
+    .footer-legal a:hover { color:var(--off-white); }
+
+    /* AI ASSISTANT */
+    .ai-fab { position:fixed; bottom:2rem; right:2rem; z-index:600; width:60px; height:60px; background:transparent; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:1.4rem; box-shadow:0 8px 32px rgba(201,168,76,0.35); transition:transform 0.25s,box-shadow 0.25s; animation:fabPulse 3s ease-in-out infinite; }
+    @keyframes fabPulse { 0%,100%{box-shadow:0 8px 32px rgba(201,168,76,0.35)} 50%{box-shadow:0 8px 48px rgba(201,168,76,0.55)} }
+    .ai-fab:hover { transform:scale(1.08); }
+    .ai-fab-label { position:absolute; right:70px; top:50%; transform:translateY(-50%); background:var(--card); color:var(--off-white); padding:0.4rem 0.9rem; font-family:'Barlow Semi Condensed',sans-serif; font-size:0.72rem; letter-spacing:0.12em; text-transform:uppercase; white-space:nowrap; border:1px solid var(--line); opacity:0; pointer-events:none; transition:opacity 0.2s; border-right:2px solid var(--gold); }
+    .ai-fab:hover .ai-fab-label { opacity:1; }
+    .ai-window { position:fixed; bottom:6rem; right:2rem; z-index:601; width:400px; max-height:600px; background:var(--card); border:1px solid var(--line); display:flex; flex-direction:column; box-shadow:0 24px 80px rgba(0,0,0,0.6); transform:translateY(20px) scale(0.96); opacity:0; pointer-events:none; transition:transform 0.35s cubic-bezier(0.16,1,0.3,1),opacity 0.3s; border-top:3px solid var(--gold); }
+    .ai-window.open { transform:translateY(0) scale(1); opacity:1; pointer-events:all; }
+    .ai-header { display:flex; align-items:center; justify-content:space-between; padding:1rem 1.2rem; border-bottom:1px solid var(--line); flex-shrink:0; }
+    .ai-header-left { display:flex; align-items:center; gap:0.8rem; }
+    .ai-avatar { width:34px; height:34px; background:var(--gold); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.9rem; color:var(--black); font-weight:700; flex-shrink:0; }
+    .ai-title { font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:1rem; text-transform:uppercase; letter-spacing:0.08em; }
+    .ai-subtitle { font-size:0.68rem; color:var(--muted); letter-spacing:0.1em; text-transform:uppercase; }
+    .ai-status { display:flex; align-items:center; gap:0.4rem; }
+    .ai-dot { width:7px; height:7px; background:#4ade80; border-radius:50%; animation:statusBlink 2s ease-in-out infinite; }
+    @keyframes statusBlink { 0%,100%{opacity:1} 50%{opacity:0.4} }
+    .ai-status-text { font-size:0.65rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.1em; }
+    .ai-close { background:none; border:none; color:var(--muted); cursor:pointer; font-size:1.1rem; line-height:1; padding:0.2rem; transition:color 0.2s; }
+    .ai-close:hover { color:var(--off-white); }
+    .ai-messages { flex:1; overflow-y:auto; padding:1.2rem; display:flex; flex-direction:column; gap:1rem; min-height:0; scrollbar-width:thin; scrollbar-color:var(--line) transparent; }
+    .ai-messages::-webkit-scrollbar { width:3px; }
+    .ai-messages::-webkit-scrollbar-thumb { background:var(--line); border-radius:2px; }
+    .msg { display:flex; gap:0.7rem; align-items:flex-start; animation:msgSlide 0.3s ease; }
+    @keyframes msgSlide { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+    .msg.user { flex-direction:row-reverse; }
+    .msg-avatar { width:28px; height:28px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:0.7rem; font-weight:700; }
+    .msg.bot .msg-avatar { background:var(--gold); color:var(--black); }
+    .msg.user .msg-avatar { background:var(--steel); color:var(--off-white); }
+    .msg-bubble { max-width:82%; padding:0.75rem 1rem; font-size:0.875rem; line-height:1.65; }
+    .msg.bot .msg-bubble { background:var(--steel); color:var(--off-white); border-radius:0 8px 8px 8px; }
+    .msg.user .msg-bubble { background:var(--gold); color:var(--black); border-radius:8px 0 8px 8px; font-weight:500; }
+    .msg-bubble strong { color:var(--gold); }
+    .msg.user .msg-bubble strong { color:var(--black); }
+    .typing-indicator { display:flex; gap:5px; align-items:center; padding:0.3rem 0; }
+    .typing-dot { width:7px; height:7px; background:var(--muted); border-radius:50%; animation:typingBounce 1.2s ease-in-out infinite; }
+    .typing-dot:nth-child(2){animation-delay:0.2s}
+    .typing-dot:nth-child(3){animation-delay:0.4s}
+    @keyframes typingBounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
+    .ai-chips { padding:0.8rem 1.2rem; display:flex; flex-wrap:wrap; gap:0.5rem; border-top:1px solid var(--line); flex-shrink:0; }
+    .chip { font-family:'Barlow Semi Condensed',sans-serif; font-size:0.68rem; letter-spacing:0.08em; text-transform:uppercase; padding:0.35rem 0.7rem; border:1px solid var(--line); background:transparent; color:var(--muted); cursor:pointer; transition:border-color 0.2s,color 0.2s,background 0.2s; white-space:nowrap; }
+    .chip:hover { border-color:var(--gold); color:var(--gold); background:rgba(201,168,76,0.06); }
+    .ai-input-row { display:flex; border-top:1px solid var(--line); flex-shrink:0; }
+    .ai-input { flex:1; background:transparent; border:none; outline:none; padding:1rem 1.2rem; font-family:'Barlow',sans-serif; font-size:0.88rem; color:var(--off-white); }
+    .ai-input::placeholder { color:var(--muted); }
+    .ai-send { padding:0 1.2rem; background:var(--gold); border:none; color:var(--black); cursor:pointer; font-size:1rem; transition:background 0.2s; flex-shrink:0; }
+    .ai-send:hover { background:#d9b85c; }
+
+    /* REVEAL */
+    .reveal { opacity:0; transform:translateY(40px); transition:opacity 0.8s,transform 0.8s; }
+    .reveal.visible { opacity:1; transform:translateY(0); }
+    .reveal-delay-1{transition-delay:0.1s}
+    .reveal-delay-2{transition-delay:0.2s}
+    .reveal-delay-3{transition-delay:0.3s}
+    .reveal-delay-4{transition-delay:0.4s}
+    .reveal-delay-5{transition-delay:0.5s}
+    .reveal-delay-6{transition-delay:0.6s}
+
+    /* SCROLLBAR */
+    ::-webkit-scrollbar { width:4px; }
+    ::-webkit-scrollbar-track { background:var(--black); }
+    ::-webkit-scrollbar-thumb { background:var(--gold-dim); border-radius:2px; }
+    .count-num { display:inline; }
+
+    /* ═══════════════════════════════════════════
+       RESPONSIVE — MOBILE FIXES
+    ═══════════════════════════════════════════ */
+    @media(max-width:960px) {
+      /* Navbar */
+      nav { padding:0 1.5rem; }
+      .nav-links { display:none; }
+      .nav-cta { display:none; }
+      .nav-hamburger { display:flex; }
+
+      /* Hero — push content down from navbar + breathing room */
+      .hero-inner {
+        padding-left:1.5rem;
+        padding-right:1.5rem;
+        padding-top:140px;   /* clear the fixed navbar */
+      }
+      .hero-sub-row { flex-direction:column; align-items:flex-start; }
+      .hero-stats { flex-wrap:wrap; }
+      .stat { min-width:50%; border-right:1px solid var(--line); }
+      .stat:nth-child(even) { border-right:none; }
+
+      /* Sections */
+      #before-after,#services,#testimonials,#contact { padding-left:1.5rem; padding-right:1.5rem; }
+
+      /* Grids */
+      .ba-grid { grid-template-columns:1fr; }
+      .services-grid { grid-template-columns:1fr; }
+      .testi-card { flex:0 0 100%; }
+      .contact-inner { grid-template-columns:1fr; gap:3rem; }
+      .form-row { grid-template-columns:1fr; }
+
+      /* Footer */
+      .footer-top { grid-template-columns:1fr 1fr; gap:2rem; padding:0 1.5rem 3rem; }
+      footer { padding:3rem 1.5rem 2rem; }
+      .footer-bottom { flex-direction:column; gap:1rem; text-align:center; padding:0 1.5rem; padding-top:1.8rem; }
+      .footer-legal { flex-wrap:wrap; justify-content:center; }
+
+      /* AI chat */
+      .ai-window { width:calc(100vw - 2rem); right:1rem; bottom:5.5rem; }
+    }
+
+    @media(max-width:600px) {
+      /* Hero title scale on very small screens */
+      .hero-title { font-size:clamp(3rem,14vw,4.5rem); }
+      .hero-inner { padding-top:130px; }
+
+      /* Stats stack to 2-col */
+      .stat { min-width:50%; }
+
+      /* Footer single column */
+      .footer-top { grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- MOBILE NAV OVERLAY -->
+<div class="mobile-nav" id="mobileNav">
+  <a href="#services" class="mobile-nav-link">Services</a>
+  <a href="#before-after" class="mobile-nav-link">Portfolio</a>
+  <a href="#testimonials" class="mobile-nav-link">Clients</a>
+  <a href="#contact" class="mobile-nav-link">Contact</a>
+  <a href="#contact" class="mobile-cta mobile-nav-link">Start a Project</a>
+</div>
+
+<!-- NAVBAR -->
+<nav id="navbar">
+  <a class="nav-logo" href="#"><span>VAN</span>TEX</a>
+  <ul class="nav-links">
+    <li><a href="#services">Services</a></li>
+    <li><a href="#before-after">Portfolio</a></li>
+    <li><a href="#testimonials">Clients</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <a class="nav-cta" href="#contact">Start a Project</a>
+  <button class="nav-hamburger" id="hamburger" aria-label="Toggle menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-slash"></div>
+  <div class="particles-wrap" id="particles"></div>
+  <div class="hero-inner">
+    <div class="hero-eyebrow">
+      <div class="hero-eyebrow-line"></div>
+      <span class="hero-eyebrow-text">Est. 1998 · Kuwait · GCC</span>
+    </div>
+    <h1 class="hero-title">
+      <span class="line"><span>We Don't</span></span>
+      <span class="line"><span>Just <span class="accent">Build.</span></span></span>
+      <span class="line"><span><span class="outline">We Last.</span></span></span>
+    </h1>
+    <div class="hero-sub-row">
+      <p class="hero-desc">Vantex delivers landmark construction across Kuwait and the Gulf — from foundation to finish, from vision to skyline.</p>
+      <div class="hero-actions">
+        <a href="#before-after" class="btn-primary"><span>View Our Work</span></a>
+        <a href="#services" class="btn-ghost">Our Services</a>
+      </div>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><span class="stat-number"><span class="count-num" data-target="340">0</span><span class="unit">+</span></span><span class="stat-label">Projects Delivered</span></div>
+      <div class="stat"><span class="stat-number"><span class="count-num" data-target="26">0</span><span class="unit">yr</span></span><span class="stat-label">Years of Excellence</span></div>
+      <div class="stat"><span class="stat-number"><span class="count-num" data-target="98">0</span><span class="unit">%</span></span><span class="stat-label">On-Time Delivery</span></div>
+      <div class="stat"><span class="stat-number"><span class="count-num" data-target="12">0</span><span class="unit">B</span></span><span class="stat-label">KD in Infrastructure</span></div>
+    </div>
+  </div>
+  <div class="scroll-cue"><span class="scroll-cue-text">Scroll</span><div class="scroll-cue-line"></div></div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <div class="marquee-item">Commercial Construction <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Infrastructure <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Residential Towers <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Industrial Projects <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Renovation &amp; Retrofit <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Smart Buildings <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Commercial Construction <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Infrastructure <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Residential Towers <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Industrial Projects <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Renovation &amp; Retrofit <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Smart Buildings <span class="marquee-dot"></span></div>
+  </div>
+</div>
+
+<!-- BEFORE / AFTER -->
+<section id="before-after">
+  <div class="section-header reveal">
+    <div class="section-eyebrow">
+      <div class="section-eyebrow-line"></div>
+      <span class="section-eyebrow-text">Transformation Portfolio</span>
+      <div class="section-eyebrow-line"></div>
+    </div>
+    <h2 class="section-title">Before <span class="accent">&amp;</span> After</h2>
+    <p class="section-sub">Drag each slider to witness the transformation — from raw sites to iconic structures.</p>
+  </div>
+  <div class="ba-grid">
+    <div class="ba-card reveal reveal-delay-1" id="baCard0">
+      <div class="ba-inner">
+        <div class="ba-before card-1"><img src="/Construction-after1.png" alt="Before"></div>
+        <div class="ba-after card-1"><img src="/Construction-before1.png" alt="After"></div>
+        <div class="ba-divider" id="baDivider0"><div class="ba-handle"><span class="ba-arrows">⟨⟩</span></div></div>
+        <div class="ba-label before">Before</div>
+        <div class="ba-label after">After</div>
+      </div>
+      <div class="ba-caption"><span class="ba-caption-tag">Downtown Kuwait City</span><div class="ba-caption-title">Seef Tower Complex</div></div>
+    </div>
+    <div class="ba-card reveal reveal-delay-2" id="baCard1">
+      <div class="ba-inner">
+          <div class="ba-before card-2"><img src="/Construction-after2.png" alt="Before"></div>
+          <div class="ba-after card-2"><img src="/Construction-before2.png" alt="After"></div>
+        <div class="ba-divider" id="baDivider1"><div class="ba-handle"><span class="ba-arrows">⟨⟩</span></div></div>
+        <div class="ba-label before">Before</div>
+        <div class="ba-label after">After</div>
+      </div>
+      <div class="ba-caption"><span class="ba-caption-tag">Hawalli Governorate</span><div class="ba-caption-title">Green Residences</div></div>
+    </div>
+    <div class="ba-card reveal reveal-delay-3" id="baCard2">
+      <div class="ba-inner">
+        <div class="ba-before card-3"><img src="/Construction-after3.png" alt="Before"></div>
+        <div class="ba-after card-3"><img src="/Construction-before3.png" alt="After"></div>
+        <div class="ba-divider" id="baDivider2"><div class="ba-handle"><span class="ba-arrows">⟨⟩</span></div></div>
+        <div class="ba-label before">Before</div>
+        <div class="ba-label after">After</div>
+      </div>
+      <div class="ba-caption"><span class="ba-caption-tag">Ahmadi New City</span><div class="ba-caption-title">Nova Smart District</div></div>
+    </div>
+  </div>
+  <div class="ba-instruction reveal">
+    <div class="ba-instruction-icon">⟨⟩</div>
+    <span>Drag slider to compare</span>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="section-header reveal">
+    <div class="section-eyebrow">
+      <div class="section-eyebrow-line"></div>
+      <span class="section-eyebrow-text">What We Do</span>
+      <div class="section-eyebrow-line"></div>
+    </div>
+    <h2 class="section-title">Our <span class="accent">Services</span></h2>
+    <p class="section-sub">End-to-end construction capabilities — from the first blueprint to the final handover.</p>
+  </div>
+  <div class="services-grid">
+    <div class="service-card reveal reveal-delay-1">
+      <span class="service-num">01</span>
+      <div class="service-icon">🏗️</div>
+      <div class="service-name">Commercial Construction</div>
+      <p class="service-desc">High-rise office towers, retail complexes, and mixed-use developments built to the highest structural and aesthetic standards.</p>
+      <a href="#contact" class="service-link">Get a Quote →</a>
+    </div>
+    <div class="service-card reveal reveal-delay-2">
+      <span class="service-num">02</span>
+      <div class="service-icon">🏘️</div>
+      <div class="service-name">Residential Towers</div>
+      <p class="service-desc">Luxury apartment blocks, villa compounds, and residential communities designed for longevity and premium living.</p>
+      <a href="#contact" class="service-link">Get a Quote →</a>
+    </div>
+    <div class="service-card reveal reveal-delay-3">
+      <span class="service-num">03</span>
+      <div class="service-icon">🛣️</div>
+      <div class="service-name">Infrastructure</div>
+      <p class="service-desc">Roads, bridges, drainage networks, and public utilities — the backbone of cities and industrial zones across the GCC.</p>
+      <a href="#contact" class="service-link">Get a Quote →</a>
+    </div>
+    <div class="service-card reveal reveal-delay-4">
+      <span class="service-num">04</span>
+      <div class="service-icon">🏭</div>
+      <div class="service-name">Industrial Projects</div>
+      <p class="service-desc">Warehouses, factories, oil & gas facilities, and logistics hubs built for operational efficiency and safety compliance.</p>
+      <a href="#contact" class="service-link">Get a Quote →</a>
+    </div>
+    <div class="service-card reveal reveal-delay-5">
+      <span class="service-num">05</span>
+      <div class="service-icon">🔧</div>
+      <div class="service-name">Renovation &amp; Retrofit</div>
+      <p class="service-desc">Structural upgrades, interior refurbishments, and sustainability retrofits that breathe new life into existing buildings.</p>
+      <a href="#contact" class="service-link">Get a Quote →</a>
+    </div>
+    <div class="service-card reveal reveal-delay-6">
+      <span class="service-num">06</span>
+      <div class="service-icon">🤖</div>
+      <div class="service-name">Smart Buildings</div>
+      <p class="service-desc">Intelligent building systems with IoT integration, energy management, and automated controls for the future of construction.</p>
+      <a href="#contact" class="service-link">Get a Quote →</a>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials">
+  <div class="section-header reveal">
+    <div class="section-eyebrow">
+      <div class="section-eyebrow-line"></div>
+      <span class="section-eyebrow-text">Client Voices</span>
+      <div class="section-eyebrow-line"></div>
+    </div>
+    <h2 class="section-title">What Clients <span class="accent">Say</span></h2>
+    <p class="section-sub">We measure success by what our clients say after the keys are handed over.</p>
+  </div>
+  <div class="testi-wrap reveal">
+    <div class="testi-track-outer">
+      <div class="testi-track" id="testiTrack">
+        <div class="testi-card">
+          <div class="testi-stars">★★★★★</div>
+          <div class="testi-quote">"</div>
+          <p class="testi-text">Vantex delivered our 28-floor commercial tower two weeks ahead of schedule. Their project management is second to none in Kuwait. Every milestone was met with military precision.</p>
+          <div class="testi-divider"></div>
+          <div class="testi-name">Khalid Al-Rashidi</div>
+          <div class="testi-role">CEO · Al-Rashidi Group, Kuwait City</div>
+        </div>
+        <div class="testi-card">
+          <div class="testi-stars">★★★★★</div>
+          <div class="testi-quote">"</div>
+          <p class="testi-text">The quality of finish on our residential compound was extraordinary. Vantex brought craftsmanship and attention to detail that we hadn't seen from any other contractor in the region.</p>
+          <div class="testi-divider"></div>
+          <div class="testi-name">Maryam Al-Sabah</div>
+          <div class="testi-role">Director · Sabah Real Estate Development</div>
+        </div>
+        <div class="testi-card">
+          <div class="testi-stars">★★★★★</div>
+          <div class="testi-quote">"</div>
+          <p class="testi-text">We hired Vantex for our industrial logistics hub in Ahmadi. Their team handled everything from permits to fitout. Transparent, professional, and genuinely committed to quality.</p>
+          <div class="testi-divider"></div>
+          <div class="testi-name">Omar Al-Mutairi</div>
+          <div class="testi-role">Operations Director · Gulf Logistics Co.</div>
+        </div>
+        <div class="testi-card">
+          <div class="testi-stars">★★★★★</div>
+          <div class="testi-quote">"</div>
+          <p class="testi-text">The smart building systems Vantex integrated into our HQ have cut energy costs by 34%. Their technical team understood our needs from day one and delivered beyond expectations.</p>
+          <div class="testi-divider"></div>
+          <div class="testi-name">Tariq Al-Hamdan</div>
+          <div class="testi-role">Facilities VP · Kuwait Petroleum Corp.</div>
+        </div>
+        <div class="testi-card">
+          <div class="testi-stars">★★★★★</div>
+          <div class="testi-quote">"</div>
+          <p class="testi-text">From foundation to rooftop, Vantex maintained consistent communication and quality. Our hospital project in Salmiya was a complex build — they made it look effortless.</p>
+          <div class="testi-divider"></div>
+          <div class="testi-name">Dr. Nadia Al-Qattan</div>
+          <div class="testi-role">Chairman · Gulf Medical Centers</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-controls">
+      <div class="testi-dots" id="testiDots"></div>
+      <div class="testi-arrows">
+        <button class="testi-btn" id="testiPrev">←</button>
+        <button class="testi-btn" id="testiNext">→</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="contact-inner">
+    <div class="contact-left reveal">
+      <h2>Let's Build<br><span>Something Lasting</span></h2>
+      <p>Whether you have a full brief or just an idea — our team is ready to assess, plan, and execute.</p>
+      <div class="contact-info-item">
+        <div class="contact-info-icon">📍</div>
+        <div><div class="contact-info-label">Address</div><div class="contact-info-value">Block 12, Industrial Area, Shuwaikh, Kuwait City</div></div>
+      </div>
+      <div class="contact-info-item">
+        <div class="contact-info-icon">📞</div>
+        <div><div class="contact-info-label">Phone</div><div class="contact-info-value">+965 2234 5678</div></div>
+      </div>
+      <div class="contact-info-item">
+        <div class="contact-info-icon">✉️</div>
+        <div><div class="contact-info-label">Email</div><div class="contact-info-value">projects@vantexkw.com</div></div>
+      </div>
+    </div>
+    <div class="reveal reveal-delay-2">
+      <div class="contact-form">
+        <div class="form-row">
+          <div class="form-field"><label>Full Name</label><input type="text"  /></div>
+          <div class="form-field"><label>Company</label><input type="text"  /></div>
+        </div>
+        <div class="form-row">
+          <div class="form-field"><label>Phone</label><input type="tel"  /></div>
+          <div class="form-field"><label>Email</label><input type="email"  /></div>
+        </div>
+        <div class="form-field">
+          <label>Project Type</label>
+          <select>
+            <option value="">Select a service</option>
+            <option>Commercial Construction</option>
+            <option>Residential Tower</option>
+            <option>Infrastructure</option>
+            <option>Industrial Project</option>
+            <option>Renovation &amp; Retrofit</option>
+            <option>Smart Buildings</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>Project Brief</label>
+          <textarea rows="4" placeholder="Describe your project — location, size, timeline, budget range..."></textarea>
+        </div>
+        <div class="form-submit-row">
+          <button class="form-submit"><span>Send Enquiry →</span></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <div class="footer-brand">
+      <a class="nav-logo" href="#"><span>VAN</span>TEX</a>
+      <p>Kuwait's most trusted construction partner since 1998. Building landmarks across the GCC with precision, integrity, and scale.</p>
+      <div class="footer-social">
+        <a class="social-btn" href="#" title="LinkedIn" style="color: rgb(32, 126, 214);">in</a>
+        <a class="social-btn" href="#" title="Instagram" style="color: orangered;"><i class="fa-brands fa-instagram instagram-icon"></i></a>
+        <a class="social-btn" href="#" title="Twitter/X" style="color: white;">𝕏</a>
+        <a class="social-btn" href="#" title="WhatsApp"><i style="color: rgb(70, 212, 27);" class="fa-brands fa-whatsapp whatsapp-icon"></i></a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Services</h4>
+      <ul>
+        <li><a href="#services">Commercial</a></li>
+        <li><a href="#services">Residential</a></li>
+        <li><a href="#services">Infrastructure</a></li>
+        <li><a href="#services">Industrial</a></li>
+        <li><a href="#services">Smart Buildings</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <ul>
+        <li><a href="#">About Vantex</a></li>
+        <li><a href="#before-after">Portfolio</a></li>
+        <li><a href="#testimonials">Clients</a></li>
+        <li><a href="#">Careers</a></li>
+        <li><a href="#">Press</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Contact</h4>
+      <ul>
+        <li><a href="tel:+96522345678">+965 2234 5678</a></li>
+        <li><a href="mailto:projects@vantexkw.com">projects@vantexkw.com</a></li>
+        <li><a href="#">Shuwaikh, Kuwait</a></li>
+        <li><a href="#">Saudi Arabia Office</a></li>
+        <li><a href="#">UAE Office</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-copy">© 2026 <span>Vantex Construction W.L.L.</span> — All rights reserved.</div>
+    <div class="footer-legal">
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms of Use</a>
+      <a href="#">ISO 9001 Certified</a>
+    </div>
+  </div>
+</footer>
+
+<!-- AI ASSISTANT -->
+<!-- <button class="ai-fab" id="aiFab" aria-label="Open AI Assistant">
+  <span class="ai-fab-label">AI Assistant</span>
+  <button class="ai-fab" id="aiFab" aria-label="Open AI Assistant">
+  <span class="ai-fab-label">AI Assistant</span>
+  <svg width="32" height="32" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="7" y="11" width="20" height="15" rx="3" fill="#C9A84C"/>
+    <rect x="10" y="14" width="5" height="4" rx="1" fill="black"/>
+    <rect x="19" y="14" width="5" height="4" rx="1" fill="black"/>
+    <rect x="13" y="21" width="8" height="2" rx="1" fill="black"/>
+    <rect x="15" y="7" width="4" height="4" rx="1" fill="#C9A84C"/>
+    <rect x="16.5" y="5" width="1" height="3" rx="0.5" fill="black"/>
+    <circle cx="17" cy="5" r="1.2" fill="black"/>
+    <rect x="3" y="15" width="3" height="6" rx="1.5" fill="#C9A84C"/>
+    <rect x="28" y="15" width="3" height="6" rx="1.5" fill="#C9A84C"/>
+  </svg>
+</button> -->
+
+<div class="ai-window" id="aiWindow">
+  <div class="ai-header">
+    <div class="ai-header-left">
+      <div class="ai-avatar">V</div>
+      <div>
+        <div class="ai-title">Vantex AI</div>
+        <div class="ai-subtitle">Construction Advisor</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:1rem">
+      <div class="ai-status">
+        <div class="ai-dot"></div>
+        <span class="ai-status-text">Online</span>
+      </div>
+      <button class="ai-close" id="aiClose">✕</button>
+    </div>
+  </div>
+  <div class="ai-messages" id="aiMessages">
+    <div class="msg bot">
+      <div class="msg-avatar">V</div>
+      <div class="msg-bubble">
+        👋 Hello! I'm <strong>Vantex AI</strong>, your construction advisor. I can answer questions about construction costs, timelines, materials, permits in Kuwait, or how Vantex can help with your project.<br><br>What can I help you with today?
+      </div>
+    </div>
+  </div>
+  <div class="ai-chips" id="aiChips">
+    <button class="chip">💰 Project Costs</button>
+    <button class="chip">⏱ Timelines</button>
+    <button class="chip">📋 Permits Kuwait</button>
+    <button class="chip">🧱 Materials</button>
+    <button class="chip">📞 Get a Quote</button>
+  </div>
+  <div class="ai-input-row">
+    <input class="ai-input" id="aiInput" type="text" placeholder="Ask anything about construction..." />
+    <button class="ai-send" id="aiSend">➤</button>
+  </div>
+</div>
+
+<script>
+/* CURSOR */
+const cursor=document.getElementById('cursor'),ring=document.getElementById('cursorRing');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cursor.style.left=mx+'px';cursor.style.top=my+'px'});
+(function animRing(){rx+=(mx-rx)*0.12;ry+=(my-ry)*0.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(animRing)})();
+document.querySelectorAll('a,button,.ba-card,.stat,.service-card,.testi-card').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{cursor.style.width='20px';cursor.style.height='20px';ring.style.width='50px';ring.style.height='50px'});
+  el.addEventListener('mouseleave',()=>{cursor.style.width='12px';cursor.style.height='12px';ring.style.width='36px';ring.style.height='36px'});
+});
+
+/* NAVBAR SCROLL */
+const navbar=document.getElementById('navbar');
+window.addEventListener('scroll',()=>navbar.classList.toggle('scrolled',scrollY>40));
+
+/* HAMBURGER */
+const hamburger=document.getElementById('hamburger');
+const mobileNav=document.getElementById('mobileNav');
+hamburger.addEventListener('click',()=>{
+  const open=mobileNav.classList.toggle('open');
+  hamburger.classList.toggle('open',open);
+  document.body.style.overflow=open?'hidden':'';
+});
+mobileNav.querySelectorAll('.mobile-nav-link').forEach(link=>{
+  link.addEventListener('click',()=>{
+    mobileNav.classList.remove('open');
+    hamburger.classList.remove('open');
+    document.body.style.overflow='';
+  });
+});
+
+/* PARTICLES */
+const pw=document.getElementById('particles');
+for(let i=0;i<18;i++){const p=document.createElement('div');p.className='particle';p.style.cssText=`left:${Math.random()*100}%;height:${20+Math.random()*60}px;--dur:${4+Math.random()*6}s;--delay:${Math.random()*6}s`;pw.appendChild(p);}
+
+/* COUNTERS */
+function animCount(el,target){let start=null;(function step(ts){if(!start)start=ts;const p=Math.min((ts-start)/1800,1),e=1-Math.pow(1-p,3);el.textContent=Math.floor(e*target);if(p<1)requestAnimationFrame(step);else el.textContent=target})(performance.now());}
+let countDone=false;
+new IntersectionObserver(entries=>{if(entries[0].isIntersecting&&!countDone){countDone=true;document.querySelectorAll('.count-num').forEach(el=>animCount(el,+el.dataset.target))}},{threshold:0.4}).observe(document.querySelector('.hero-stats'));
+
+/* SCROLL REVEAL */
+const revObs=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible')}),{threshold:0.12});
+document.querySelectorAll('.reveal').forEach(el=>revObs.observe(el));
+
+/* BEFORE/AFTER SLIDERS */
+function initSlider(cardId,divId){
+  const card=document.getElementById(cardId),div=document.getElementById(divId),after=card.querySelector('.ba-after');
+  if(!card||!div||!after)return;
+  let drag=false;
+  function getPct(cx){const r=card.querySelector('.ba-inner').getBoundingClientRect();return Math.max(0.02,Math.min(0.98,(cx-r.left)/r.width))}
+  function apply(p){after.style.clipPath=`inset(0 ${((1-p)*100).toFixed(2)}% 0 0)`;div.style.left=(p*100).toFixed(2)+'%'}
+  card.addEventListener('mousedown',e=>{drag=true;apply(getPct(e.clientX));e.preventDefault()});
+  window.addEventListener('mousemove',e=>{if(drag)apply(getPct(e.clientX))});
+  window.addEventListener('mouseup',()=>drag=false);
+  card.addEventListener('touchstart',e=>{drag=true;apply(getPct(e.touches[0].clientX))},{passive:true});
+  window.addEventListener('touchmove',e=>{if(drag)apply(getPct(e.touches[0].clientX))},{passive:true});
+  window.addEventListener('touchend',()=>drag=false);
+  let ran=false;
+  new IntersectionObserver(entries=>{if(entries[0].isIntersecting&&!ran){ran=true;setTimeout(()=>idleDemo(apply),Math.random()*500)}},{threshold:0.5}).observe(card);
+}
+function idleDemo(fn){
+  const kf=[0.5,0.1,0.9,0.5];let ki=0,cur=0.5,tgt=kf[0],s=null;
+  (function step(ts){if(!s)s=ts;const p=Math.min((ts-s)/1400,1),e=p<0.5?2*p*p:-1+(4-2*p)*p;fn(cur+(tgt-cur)*e);if(p<1){requestAnimationFrame(step)}else{ki++;if(ki<kf.length){cur=tgt;tgt=kf[ki];s=null;requestAnimationFrame(step)}}})(performance.now());
+}
+initSlider('baCard0','baDivider0');
+initSlider('baCard1','baDivider1');
+initSlider('baCard2','baDivider2');
+
+/* TESTIMONIALS */
+const track=document.getElementById('testiTrack'),dotsWrap=document.getElementById('testiDots');
+const cards=track.querySelectorAll('.testi-card');
+let perView=window.innerWidth<700?1:3,current=0,total=cards.length;
+function getMax(){return Math.max(0,total-perView)}
+function buildDots(){dotsWrap.innerHTML='';for(let i=0;i<=getMax();i++){const d=document.createElement('div');d.className='testi-dot'+(i===current?' active':'');d.onclick=()=>goTo(i);dotsWrap.appendChild(d);}}
+function goTo(i){current=Math.max(0,Math.min(i,getMax()));const w=cards[0].getBoundingClientRect().width+24;track.style.transform=`translateX(-${current*w}px)`;dotsWrap.querySelectorAll('.testi-dot').forEach((d,idx)=>d.classList.toggle('active',idx===current));}
+document.getElementById('testiPrev').onclick=()=>goTo(current-1);
+document.getElementById('testiNext').onclick=()=>goTo(current+1);
+buildDots();
+window.addEventListener('resize',()=>{perView=window.innerWidth<700?1:3;current=0;track.style.transform='translateX(0)';buildDots()});
+setInterval(()=>goTo(current>=getMax()?0:current+1),4500);
+
+/* AI ASSISTANT */
+const aiFab=document.getElementById('aiFab'),aiWindow=document.getElementById('aiWindow'),aiClose=document.getElementById('aiClose'),aiMessages=document.getElementById('aiMessages'),aiInput=document.getElementById('aiInput'),aiSend=document.getElementById('aiSend'),aiChips=document.getElementById('aiChips');
+aiFab.addEventListener('click',()=>aiWindow.classList.add('open'));
+aiClose.addEventListener('click',()=>aiWindow.classList.remove('open'));
+function addMsg(text,role){const wrap=document.createElement('div');wrap.className=`msg ${role}`;const av=document.createElement('div');av.className='msg-avatar';av.textContent=role==='bot'?'V':'U';const bub=document.createElement('div');bub.className='msg-bubble';bub.innerHTML=text;wrap.appendChild(av);wrap.appendChild(bub);aiMessages.appendChild(wrap);aiMessages.scrollTop=aiMessages.scrollHeight;}
+function showTyping(){const wrap=document.createElement('div');wrap.className='msg bot';wrap.id='typingMsg';const av=document.createElement('div');av.className='msg-avatar';av.textContent='V';const bub=document.createElement('div');bub.className='msg-bubble';bub.innerHTML='<div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';wrap.appendChild(av);wrap.appendChild(bub);aiMessages.appendChild(wrap);aiMessages.scrollTop=aiMessages.scrollHeight;}
+function removeTyping(){const t=document.getElementById('typingMsg');if(t)t.remove();}
+async function askAI(question){
+  addMsg(question,'user');aiInput.value='';showTyping();aiChips.style.display='none';
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,system:`You are Vantex AI, the intelligent construction advisor for Vantex Construction — a premium construction company based in Kuwait, established in 1998, operating across the GCC. Your role: answer questions from potential clients about construction topics. Be professional, concise, and helpful. Format answers clearly using <strong> tags for key terms. Keep responses under 200 words. Vantex services: Commercial Construction, Residential Towers, Infrastructure, Industrial Projects, Renovation & Retrofit, Smart Buildings. Key facts: 340+ projects delivered, 26 years in operation, 98% on-time delivery rate, ISO 9001 Certified. Contact: +965 2234 5678 | projects@vantexkw.com`,messages:[{role:'user',content:question}]})});
+    const data=await res.json();removeTyping();
+    const text=data.content&&data.content[0]?data.content[0].text:'I\'m having trouble connecting. Please call us at <strong>+965 2234 5678</strong>.';
+    addMsg(text,'bot');
+  }catch(err){removeTyping();addMsg('I\'m having a connection issue right now. For immediate help, call us at <strong>+965 2234 5678</strong>.','bot');}
+}
+aiSend.addEventListener('click',()=>{const q=aiInput.value.trim();if(q)askAI(q)});
+aiInput.addEventListener('keydown',e=>{if(e.key==='Enter'){const q=aiInput.value.trim();if(q)askAI(q)}});
+aiChips.querySelectorAll('.chip').forEach(chip=>{
+  chip.addEventListener('click',()=>{
+    const map={'💰 Project Costs':'What are the typical costs for a commercial construction project in Kuwait?','⏱ Timelines':'How long does it typically take to complete a residential tower project?','📋 Permits Kuwait':'What permits are needed for construction in Kuwait?','🧱 Materials':'What construction materials are best for the Kuwait climate?','📞 Get a Quote':'I want to get a quote for my project. What information do you need?'};
+    const q=map[chip.textContent.trim()];if(q)askAI(q);
+  });
+});
+</script>
+</body>
+</html>
